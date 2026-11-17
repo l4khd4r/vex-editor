@@ -13,8 +13,18 @@ struct vex {
     char *buffer; 
     int bytes_read ;
     int buffer_size ;
+    int cursor_x ;
+    int cursor_y ;
 };
-
 typedef struct vex vex_t ;
+
+typedef struct key {
+    char c ;
+    int type ;
+    char arrow ;
+} vex_key_t ;
+
+
+
 
 #endif

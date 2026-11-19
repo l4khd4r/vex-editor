@@ -1,49 +1,31 @@
-#include "../include/vex.h"
-#include "../include/terminal.h"
-#include "../include/utils.h"
-bool editor_running = true ;
+#include "terminal.h"
 
-int main() {
+#include <ctype.h>
+#include <stdio.h>
 
-    vex_t *editor = calloc(1 , sizeof(vex_t)) ;
+#define CTRL_KEY(k) ((k) & 0x1f)
 
-    editor->buffer = NULL ;
-    editor->bytes_read = 0 ;
-    editor->buffer_size = 1024;
-    editor->buffer= malloc(1024);
-    
-    enable_raw_mode(); // changing the terminal to raw mode 
-    while(editor_running) {
-        vex_key_t key = read_key() ;
-        switch (key.type ){
-            case KEY_CHARACTER:
-                insert_char(editor, key.c) ;
-                break ;
+int main(void) {
+    terminal_t term  = {0};
 
-            case KEY_ENTER:
-                insert_newline(editor);
-                break ;
-
-            case KEY_ARROW:
-                move_cursor(editor  , key.arrow) ;
-                break ;
-
-            case KEY_QUIT:
-                editor_running = false ;
-                break ;
-            
-            case KEY_BACKSPACE:
-                delete_char(editor);
-                break;
-            case KEY_SAVE:
-                save_file(editor);
-                break;
-        }
-        refresh_screen(editor);
+    if(terminal_init(&term) == -1) {
+        return 1;
     }
-    // at the exit we disable so no need callined the disable_raw_mode() function
-    free(editor->buffer) ;
-    free(editor);
+
+    if(terminal_enable_raw_mode(&term) == -1) {
+        return 1;
+    }
     
-    return  0 ;
+    for(;;) {
+        int c = terminal_read_key() ;
+        if(c == -1 || c == CTRL_KEY('q'))
+            break ;
+        
+        if(iscntrl(c)) 
+            printf("%d\t\n", c);
+        else
+            printf("%d ('%c')\r\n", c , c);
+    }
+    terminal_destroy(&term);
+    return 0;
 }

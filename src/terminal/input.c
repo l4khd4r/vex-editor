@@ -6,7 +6,7 @@
 
 
 // try once: 1 = we got a char , 0 we got timeout and real errors for the shitt -1 
-static int read_byte(unsigned char *out) {
+int read_byte(unsigned char *out) {
     ssize_t n = read(STDIN_FILENO , out , 1 ) ;
 
     if (n == 1)

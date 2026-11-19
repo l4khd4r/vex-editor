@@ -24,6 +24,7 @@ int terminal_init(terminal_t *term) {
     
     if(!isatty(STDIN_FILENO)) {
         fprintf(stderr, "vex: standard input is not a terminal\n");
+        return -1;
     }
     
     if(tcgetattr(STDIN_FILENO , &term->original_termios) == -1 ) {
@@ -41,7 +42,7 @@ int terminal_init(terminal_t *term) {
 
 
 int terminal_enable_raw_mode(terminal_t *term) {
-    if(!term | !term->initialized)
+    if(!term || !term->initialized)
         return -1;
     if(term->raw_mode)
         return 0;

@@ -18,3 +18,10 @@ int terminal_write(const char *buffer, size_t len) {
     }
     return 0;
 }
+
+
+
+int terminal_clear(void) {
+    static const char seq[] = "\x1b[2J\x1b[H";
+    return terminal_write(seq, sizeof(seq) -1 );
+}

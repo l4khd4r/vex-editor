@@ -15,14 +15,19 @@ int main(void) {
     if(terminal_enable_raw_mode(&term) == -1) {
         return 1;
     }
+
+    terminal_clear();
     
     for(;;) {
         int c = terminal_read_key() ;
         if(c == -1 || c == CTRL_KEY('q'))
             break ;
         
+        if(c >= 1000) {
+            printf("special key: %d\r\n" , c);
+        }
         if(iscntrl(c)) 
-            printf("%d\t\n", c);
+            printf("%d\r\n", c);
         else
             printf("%d ('%c')\r\n", c , c);
     }

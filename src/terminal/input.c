@@ -48,7 +48,7 @@ static int decode_escape(void) {
             case 'F': return END_KEY;
         }
     }
-    else if(seq[0] == '0') {
+    else if(seq[0] == 'O') {
         switch(seq[1]) {
             case 'A' : return ARROW_UP ;
             case 'B' : return ARROW_DOWN ;

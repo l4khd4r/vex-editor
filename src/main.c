@@ -25,8 +25,7 @@ int main(void) {
         
         if(c >= 1000) {
             printf("special key: %d\r\n" , c);
-        }
-        if(iscntrl(c)) 
+        }else if(iscntrl(c)) 
             printf("%d\r\n", c);
         else
             printf("%d ('%c')\r\n", c , c);

@@ -8,16 +8,34 @@
 #include <stdio.h>
 #include <stddef.h>
 
-typedef struct terminal { 
+
+
+
+
+typedef struct terminal_s  { 
     struct termios original_termios ;
     struct termios current_termios ;
-
+    
     size_t rows ;
     size_t cols ;
-
+    
     bool raw_mode ;
     bool initialized ;
 } terminal_t ;
+// keys like -> up reight .... , are not an ascci coded so we will define them here as an enum type so we can use them in our code
+enum editor_key {
+    KEY_ESC = 27,
+    KEY_BACKSPACE = 127,
+    ARROW_LEFT = 1000,
+    ARROW_RIGHT,
+    ARROW_UP,
+    ARROW_DOWN,
+    HOME_KEY,
+    END_KEY,
+    DEL_KEY,
+    PAGE_UP,
+    PAGE_DOWN,
+}; 
 
 
 int  terminal_init(terminal_t *term);

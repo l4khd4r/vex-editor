@@ -1,6 +1,8 @@
 #ifndef VEX_H
 #define VEX_H
 
+#include "terminal.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -8,13 +10,11 @@
 #include <string.h>
 
 
+typedef struct vex {
+    terminal_t *term ;
+    bool running ;
+} vex_t ;
 
-struct vex {
-    char *buffer; 
-    int bytes_read ;
-    int buffer_size ;
-};
 
-typedef struct vex vex_t ;
 
 #endif

@@ -17,6 +17,11 @@ int main(void) {
     }
 
     terminal_clear();
+    if(terminal_get_size(&term) == -1) {
+        printf("Unable to get terminal size\r\n");
+    }else {
+        printf("size: %zu rows x %zu cols\r\n" , term.rows , term.cols);
+    }
     
     for(;;) {
         int c = terminal_read_key() ;

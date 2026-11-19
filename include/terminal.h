@@ -12,7 +12,7 @@
 
 
 
-typedef struct terminal_s  { 
+typedef struct { 
     struct termios original_termios ;
     struct termios current_termios ;
     
@@ -22,7 +22,7 @@ typedef struct terminal_s  {
     bool raw_mode ;
     bool initialized ;
 } terminal_t ;
-// keys like -> up reight .... , are not an ascci coded so we will define them here as an enum type so we can use them in our code
+
 enum editor_key {
     KEY_ESC = 27,
     KEY_BACKSPACE = 127,
@@ -46,9 +46,10 @@ int terminal_enable_raw_mode(terminal_t *term);
 int terminal_disable_raw_mode(terminal_t *term);
 
 // we will think about this later 
-// int terminal_get_size(terminal_t *term);
+int terminal_get_size(terminal_t *term);
 
 int terminal_read_key(void);
+int read_byte(unsigned char *out);
 
 int terminal_write(const char *buffer, size_t len);
 int terminal_clear(void);

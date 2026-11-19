@@ -7,6 +7,7 @@ SRC = src/main.c \
 	  src/terminal/raw_mode.c \
 	  src/terminal/input.c \
 	  src/terminal/output.c \
+	  src/terminal/window.c
 
 OBJ = $(SRC:.c=.o)
 

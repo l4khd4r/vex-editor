@@ -1,7 +1,8 @@
-#include "../../include/document.h"
 #include <stdio.h>
 #include <stdlib.h>
-
+#include <string.h>
+#include <errno.h>
+#include "document.h"
 #include "../../include/gap_buffer.h"
 
 document_t *doc_create(void) {
@@ -241,4 +242,110 @@ int doc_move_end(document_t *doc) {
   doc->preferred_col = doc_line_length(doc, row);
   return 0;
 }
+static int buffer_fill(FILE *file, document_t *doc) {
+  if (!file || !doc || !doc->buffer)
+    return -1;
+  char buffer[4096];
+  size_t n  = 0;
+  while( (n = fread(buffer , 1 , sizeof(buffer) , file)) > 0) {
+    if(gb_insert_string(doc->buffer , buffer , n) == -1)
+      return -1;
+  }
+  if(ferror(file))
+    return -1;
+  return 0;
+}
 
+document_t *doc_open(const char *filename) {
+  if (!filename)
+    return NULL;
+
+  FILE *file = fopen(filename , "rb");
+  if (!file)
+  {
+    if(errno != ENOENT)
+      return NULL ;
+    document_t *doc = doc_create();
+    if(!doc)
+      return NULL ;
+    doc->filename = strdup(filename);
+    if(!doc->filename) {
+      doc_destroy(doc);
+      return NULL ;
+    }
+    return doc;
+  }
+  
+  document_t *doc = doc_create();
+  if(!doc) {
+    fclose(file);
+    return NULL ;
+  }
+  doc->filename = strdup(filename);
+  if(!doc->filename) {
+    doc_destroy(doc);
+    fclose(file);
+    return NULL ;
+  }
+  if(buffer_fill(file , doc) == -1) {
+    doc_destroy(doc);
+    fclose(file);
+    return NULL ;
+  }
+  fclose(file);
+  gb_move_to(doc->buffer , 0);
+  return doc;
+}
+
+
+/*
+
+original:  notes.txt          (untouched until the very end)
+
+1. build the temp name     "notes.txt.tmp"
+2. fopen(tmp, "wb")        → NULL? free tmp name, return -1
+3. write every char        → error? fclose, remove(tmp), free, return -1
+4. fclose(file) != 0?      → remove(tmp), free, return -1     ← the flush happens here
+5. rename(tmp, filename)   → != 0? remove(tmp), free, return -1
+6. free tmp name, dirty = false, return 0
+
+
+*/
+
+int  doc_save(document_t *doc) {
+if (!doc || !doc->buffer || !doc->filename)
+  return -1;
+  size_t size = strlen(doc->filename) + 5; 
+  char *tmp = malloc(size);
+  if(!tmp)
+    return -1;
+  
+  snprintf(tmp , size , "%s.tmp" ,doc->filename);
+  FILE *file = fopen(tmp ,"wb");
+  if(!file) {
+    free(tmp);
+    return -1;
+  }
+  for(size_t i = 0; i < gb_length(doc->buffer); ++i) {
+    if(fputc(gb_char_at(doc->buffer , i ) , file) == EOF) {
+      fclose(file);
+      remove(tmp);
+      free(tmp);
+      return -1;
+    }
+  }
+
+  if(fclose(file) != 0){
+    remove(tmp) ;
+    free(tmp);
+    return -1;
+  }
+  if(rename(tmp , doc->filename) != 0) {
+    remove(tmp);
+    free(tmp);
+    return -1 ;
+  }
+  free(tmp);
+  doc->dirty = false;
+  return 0;
+}

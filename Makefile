@@ -13,7 +13,8 @@ SRC = src/main.c \
 	  src/terminal/input.c \
 	  src/terminal/output.c \
 	  src/terminal/window.c \
-	  src/buffer/gap_buffer.c 
+	  src/buffer/gap_buffer.c \
+	  src/document/document.c 
 
 
 OBJ = $(SRC:.c=.o)

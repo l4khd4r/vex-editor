@@ -26,21 +26,6 @@ void doc_destroy(document_t *doc) {
   free(doc);
 }
 
-// document_t *doc_open(const char *path) {
-//     if(!path)
-//         return NULL ;
-//     FILE *fp = fopen(path , "r");
-//     if(!fp)
-//         return NULL;
-
-//     document_t *doc = doc_create();
-//     if(!doc) {
-//         fclose(fp);
-//         return NULL;
-//     }
-//     fseek(fp , 0 , SEEK_END);
-// }
-
 int doc_insert_char(document_t *doc, char c) {
   if (!doc || !doc->buffer)
     return -1;
@@ -126,4 +111,41 @@ size_t doc_line_length(const document_t *doc, size_t row) {
   for (; i < length && gb_char_at(doc->buffer, i) != '\n'; i++, n++)
     ;
   return n;
+}
+
+/*cursor position */
+size_t doc_cursor_col(const document_t *doc) {
+  if (!doc || !doc->buffer)
+    return 0;
+
+  return gb_cursor(doc->buffer) - doc_line_start(doc, doc_cursor_row(doc));
+}
+
+size_t doc_cursor_row(const document_t *doc) {
+  if (!doc || !doc->buffer)
+    return 0;
+
+  size_t cursor = gb_cursor(doc->buffer);
+  size_t row = 0;
+  for (size_t i = 0; i < cursor; i++) {
+    if (gb_char_at(doc->buffer, i) == '\n')
+      row++;
+  }
+  return row;
+}
+
+int doc_move_to(document_t *doc, size_t row, size_t col) {
+  if (!doc || !doc->buffer)
+    return -1;
+
+  size_t count = doc_line_count(doc);
+  size_t pos = 0;
+  if (row >= count)
+    row = count - 1;
+  size_t len = doc_line_length(doc, row);
+  if (col >= len)
+    col = len;
+  pos = doc_line_start(doc, row) + col;
+
+  return gb_move_to(doc->buffer, pos);
 }

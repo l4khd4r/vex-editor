@@ -313,8 +313,8 @@ original:  notes.txt          (untouched until the very end)
 */
 
 int  doc_save(document_t *doc) {
-if (!doc || !doc->buffer || !doc->filename)
-  return -1;
+  if (!doc || !doc->buffer || !doc->filename)
+    return -1;
   size_t size = strlen(doc->filename) + 5; 
   char *tmp = malloc(size);
   if(!tmp)

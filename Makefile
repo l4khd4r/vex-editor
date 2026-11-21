@@ -14,8 +14,8 @@ SRC = src/main.c \
 	  src/terminal/output.c \
 	  src/terminal/window.c \
 	  src/buffer/gap_buffer.c \
-	  src/document/document.c 
-
+	  src/document/document.c  \
+	  src/renderer/renderer.c 
 
 OBJ = $(SRC:.c=.o)
 

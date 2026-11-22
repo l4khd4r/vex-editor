@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 void ab_init(append_buffer_t *ab) {
   ab->data = NULL;
   ab->cap = 0;
@@ -46,10 +47,10 @@ void ab_free(append_buffer_t *ab) {
 int renderer_init(renderer_t *r, terminal_t *term) {
   if (!r || !term || !term->initialized)
     return -1;
-  if (term->rows < 2 || term->cols < 1)
+  if (term->rows < 3 || term->cols < 1)
     return -1; // we neeed + 1 for the bar + 1 for the text
   r->screen_cols = term->cols;
-  r->screen_rows = term->rows - 1;
+  r->screen_rows = term->rows - 2;
   r->row_offset = 0;
   r->col_offset = 0;
   return 0;
@@ -150,7 +151,8 @@ void renderer_draw_status(renderer_t *r, const document_t *doc,
   ab_append_string(ab, "\x1b[m");
 }
 
-void renderer_render(renderer_t *r, const document_t *doc) {
+void renderer_render(renderer_t *r, const document_t *doc, const char *message,
+                     time_t message_time) {
   if (!r || !doc)
     return;
   renderer_scroll(r, doc);
@@ -163,7 +165,7 @@ void renderer_render(renderer_t *r, const document_t *doc) {
   renderer_draw_rows(r, doc, &ab);
 
   renderer_draw_status(r, doc, &ab);
-
+  renderer_draw_message(r, message, message_time, &ab);
   size_t screen_row = doc_cursor_row(doc) - r->row_offset;
   size_t screen_col = doc_cursor_col(doc) - r->col_offset;
 
@@ -178,4 +180,20 @@ void renderer_render(renderer_t *r, const document_t *doc) {
   ab_append_string(&ab, "\x1b[?25h"); // means show the cursor againa
   terminal_write(ab.data, ab.len);
   ab_free(&ab);
+}
+
+void renderer_draw_message(const renderer_t *r, const char *message,
+                           time_t message_time, append_buffer_t *ab) {
+  if (!r || !ab)
+    return;
+  ab_append_string(ab, "\r\n");       /* go to the last row */
+  ab_append_string(ab, "\x1b[K");     /* clear it */
+  if (!message || message[0] == '\0') /* no message */
+    return;
+  if (time(NULL) - message_time >= 5) /* older than 5 seconds */
+    return;
+  size_t len = strlen(message);
+  if (len > r->screen_cols) /* cut to the screen width */
+    len = r->screen_cols;
+  ab_append(ab, message, len);
 }

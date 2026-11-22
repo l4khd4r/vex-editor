@@ -11,9 +11,12 @@ typedef struct {
   document_t *doc;
   renderer_t renderer;
   bool e_running;
+  char message[128];
+  time_t message_time;
 } editor_t;
 int editor_init(editor_t *ed, const char *filename); /* filename may be NULL */
 void editor_destroy(editor_t *ed);
 void editor_process_key(editor_t *ed, int key);
 void editor_run(editor_t *ed);
+void editor_set_message(editor_t *ed, const char *fmt, ...);
 #endif

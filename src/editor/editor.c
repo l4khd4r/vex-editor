@@ -26,8 +26,10 @@ int editor_init(editor_t *ed, const char *filename) {
     doc_destroy(ed->doc);
     return -1;
   }
+
   ed->e_running = true;
-  return 1;
+  editor_set_message(ed, "Ctrl-S = save | Ctrl-Q = quit");
+  return 0;
 }
 
 void editor_destroy(editor_t *ed) {
@@ -58,7 +60,11 @@ void editor_process_key(editor_t *ed, int key) {
     doc_move_home(ed->doc);
     break;
   case CTRL_KEY('s'):
-    doc_save(ed->doc);
+    if (doc_save(ed->doc) == 0)
+      editor_set_message(ed, "\"%s\" written, %zu bytes", ed->doc->filename,
+                         gb_length(ed->doc->buffer));
+    else
+      editor_set_message(ed, "save failed!");
     break;
   case CTRL_KEY('q'):
     ed->e_running = false;
@@ -81,11 +87,22 @@ void editor_process_key(editor_t *ed, int key) {
 }
 void editor_run(editor_t *ed) {
   while (ed->e_running) {
-    renderer_render(&ed->renderer, ed->doc);
+    renderer_render(&ed->renderer, ed->doc, ed->message, ed->message_time);
     int key = terminal_read_key();
     if (key == -1)
       ed->e_running = false;
     else
       editor_process_key(ed, key);
   }
+}
+#include <stdarg.h>
+#include <stdio.h>
+#include <time.h>
+void editor_set_message(editor_t *ed, const char *fmt, ...) {
+  va_list args;
+
+  va_start(args, fmt);
+  vsnprintf(ed->message, sizeof(ed->message), fmt, args);
+  va_end(args);
+  ed->message_time = time(NULL);
 }

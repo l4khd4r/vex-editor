@@ -34,5 +34,9 @@ void renderer_draw_rows(const renderer_t *r, const document_t *doc,
 
 void renderer_draw_status(renderer_t *r, const document_t *doc,
                           append_buffer_t *ab);
-void renderer_render(renderer_t *r, const document_t *doc);
+void renderer_render(renderer_t *r, const document_t *doc, const char *message,
+                     time_t message_time);
+void renderer_draw_message(const renderer_t *r, const char *message,
+                           time_t message_time, append_buffer_t *ab);
+
 #endif
